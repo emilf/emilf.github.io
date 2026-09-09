@@ -30,7 +30,9 @@ In 2021 COVID took my health. I ended up in the ICU and spent the next couple of
 
 ## Away from the keyboard
 
-I live in Vejle, Denmark with my daughter and our menagerie, having moved to be closer to her healthcare. She lives with hEDS, so a fair bit of our world orbits that. Icelandic is my native tongue, and I read the other Nordic languages (Finnish is beyond me — everyone's got a limit).
+I'm a dad, first and foremost. My daughter lives with me in Vejle, Denmark — we moved here to be closer to her healthcare, and she lives with hEDS, so a fair bit of our world orbits that. My son, now grown and back in Iceland, is just as important to me; we don't live close, but he's never far from my thoughts.
+
+At home it's the two of us plus our crew: **Luna**, a border collie whose herding instincts have opinions about everything we do, and **Monza**, the cat who runs the place and lets us know it. Icelandic is my native tongue, and I read the other Nordic languages (Finnish is beyond me — everyone's got a limit).
 
 Ask me about submarines and I'll light up — especially German Kriegsmarine boats and the engineering of modern nuclear submarines.
 
