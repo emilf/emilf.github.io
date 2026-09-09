@@ -52,14 +52,26 @@ main { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 .hero h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 0.4rem; }
 .hero .subtitle { font-size: 1.15rem; color: var(--accent); margin: 0 0 1.25rem; font-family: var(--font-mono); }
 .hero p { color: var(--text-dim); }
-.hero-uc { margin-top: 1.5rem !important; }
+.hero-uc {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem !important;
+}
 .hero-uc img {
+  image-rendering: pixelated;
+  background: #fff;
+}
+.hero-uc .uc-worker {
+  border: 2px solid var(--accent-dim);
+  padding: 2px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+}
+.hero-uc .uc-banner {
   max-width: 100%;
   height: auto;
-  border: 3px solid var(--accent-dim);
-  border-radius: 4px;
-  image-rendering: pixelated;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.45);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
 }
 
 .section { margin-top: 2.75rem; }
