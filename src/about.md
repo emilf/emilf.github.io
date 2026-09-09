@@ -25,11 +25,14 @@ In 2021 COVID took my health. I ended up in the ICU and spent the next couple of
 
 - **Rust and hobby OS development** — TheseusOS, my long-running x86_64 kernel project.
 - **Reverse engineering and systems programming** — decades of interest, mostly x86.
+- **Retro tech** — a soft spot for the Amiga and all things x86, both as tools and as things to take apart.
 - **Electronics and low-level hardware** — FPGA experiments, NES emulation in Verilog, and other archaeology.
 
-## Where I am
+## Away from the keyboard
 
-I've been living in Vejle, Denmark for a few years, having moved to be closer to my daughter's healthcare. Icelandic is my native tongue, and I read the other Nordic languages (Finnish is beyond me — everyone's got a limit).
+I live in Vejle, Denmark with my daughter and our menagerie, having moved to be closer to her healthcare. She lives with hEDS, so a fair bit of our world orbits that. Icelandic is my native tongue, and I read the other Nordic languages (Finnish is beyond me — everyone's got a limit).
+
+Ask me about submarines and I'll light up — especially German Kriegsmarine boats and the engineering of modern nuclear submarines.
 
 ## Ways to reach me
 
