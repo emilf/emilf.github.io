@@ -1,0 +1,50 @@
+---
+layout: base.njk
+title: Home
+eleventyNavigation:
+  key: Home
+  order: 1
+permalink: /
+---
+<section class="hero">
+  <h1>Emil Friðriksson</h1>
+  <p class="subtitle">systems · databases · hobby kernels</p>
+  <p>I'm a systems programmer and database administrator from Iceland, living in Vejle, Denmark. For the better part of a decade I kept EVE Online's economy running as a Senior Virtual World Database Administrator. These days I tinker with hobby operating systems, reverse-engineering, and whatever x86 rabbit hole catches my eye.</p>
+</section>
+
+{% set latest = collections.posts | first %}
+{% if latest %}
+<section class="section">
+  <h2>Latest post</h2>
+  <ul class="post-list">
+    <li><time datetime="{{ latest.date | dateToISO }}">{{ latest.date | readableDate }}</time><a href="{{ latest.url }}">{{ latest.data.title }}</a></li>
+  </ul>
+</section>
+{% endif %}
+
+<section class="section">
+  <h2>Projects</h2>
+  <div class="projects">
+    <div class="project">
+      <h3><a href="https://github.com/emilf/TheseusOS">TheseusOS</a></h3>
+      <p>A Rust-based hobby OS for x86_64. UEFI, x2APIC, drivers — just a hobby, won't be big and professional like gnu.</p>
+    </div>
+    <div class="project">
+      <h3><a href="https://emilf.github.io">emilf.dev</a></h3>
+      <p>This site — an Eleventy static site, dark as my heart.</p>
+    </div>
+    <div class="project">
+      <h3>Hobby archaeology</h3>
+      <p>Reverse engineering, SQL Server deep internals, and FPGA experiments spanning most of a decade.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Elsewhere</h2>
+  <ul>
+    <li>GitHub — <a href="https://github.com/emilf">emilf</a></li>
+    <li>Reddit — <a href="https://reddit.com/user/emilfrid">emilfrid</a></li>
+    <li>Contact — <a href="/about/">about &amp; ways to reach me</a></li>
+  </ul>
+</section>

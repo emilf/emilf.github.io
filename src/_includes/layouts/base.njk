@@ -1,0 +1,32 @@
+---
+eleventyNavigation:
+  key: Home
+  order: 1
+---
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} · {{ site.title }}{% else %}{{ site.title }} — {{ site.description }}{% endif %}</title>
+  <meta name="description" content="{% if description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <meta name="generator" content="Eleventy">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      {% include "partials/nav.njk" %}
+    </div>
+  </header>
+  <main class="container">
+    {{ content | safe }}
+  </main>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© {{ site.author }} — built with <a href="https://www.11ty.dev/">Eleventy</a>, dark as my heart.</p>
+    </div>
+  </footer>
+</body>
+</html>

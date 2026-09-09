@@ -1,0 +1,10 @@
+<nav class="nav" aria-label="Main navigation">
+  <a class="nav-brand" href="/">{{ site.author }}</a>
+  <ul class="nav-list">
+    {% for entry in collections.nav %}
+    <li>
+      <a href="{{ entry.url }}" {% if page.url == entry.url %}aria-current="page" class="active"{% endif %}>{{ entry.data.eleventyNavigation.key }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
