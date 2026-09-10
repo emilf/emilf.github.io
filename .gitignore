@@ -1,3 +1,7 @@
 node_modules/
 _site/
 .DS_Store
+
+# scratch / generated working files
+_choices_sheet-*.png
+_*.png
