@@ -19,10 +19,24 @@ I keep my hands off the implementation on purpose, even when I could do it faste
 
 ## A rough timeline
 
-- **2023** — First Rust x86 bootloader experiments, UEFI GOP framebuffer work, the Rust Book and Rustlings. Early forays into memory layout (GDT) and Rust tooling.
-- **2024** — Foundation work: memory persistence, the GDT, and the first stable project scaffolding.
-- **2025** — The busy year. Memory management with folios, the x86_64 Bootboot setup, LAPIC/APIC deep dives, interrupt handling, PCI vs PCIe, USB HCI enumeration, ELF loading, and the allocator switch.
-- **2026** — Refinement, and continued work on driver bring-up and kernel hardening.
+The git history tells the story better than I can. It started in **June 2025** with a single commit saving the QEMU command line for booting UEFI firmware — the absolute ground floor. Everything since is in public in the repo.
+
+- **June 2025** — First commit: just a QEMU invocation for a UEFI BIOS. The starting gun.
+- **August 2025** — A working "hello world" and the first data hand-off from bootloader to kernel.
+- **September 2025** — The big structural push: splitting the workspace into bootloader and kernel, a driver system for serial output, proper UEFI memory allocation, loading the kernel from the EFI System Partition, ELF parsing, and moving `ExitBootServices` responsibility into the kernel. There's a telling commit in here — *"Rollback. I got tired of trying to do things wrong. Trying again by the book and keeping a stricter hand on the AI helper."*
+- **October 2025** — Memory and observability. A proper page-frame allocator, `SetVirtualAddressMap` to bring UEFI runtime services into the higher half, a new logging system, a serial monitor (a homage to WozMon), GDB integration, and hardware inventory.
+- **December 2025** — The USB era: xHCI rings, MSI/MSI-X, and the long grind of getting a USB keyboard to actually produce key events under QEMU.
+- **February 2026** — Tooling maturity: a Rust `theseus-qemu` runner with profiles and relays, QEMU relay sockets, a logging policy, and a test-strategy document.
+- **March 2026** — Phase 1 hardening, x2APIC guardrails and cleanup (PRs #17–#30), the debug monitor, and automated GDB sessions.
+- **June 2026** — Test automation: ISA debug-exit paths with PASS/FAIL/PANIC/TIMEOUT scenarios.
+
+The repo is around **330 commits** at time of writing, with the roadmap organised into phases — Phase 0 (foundation) is done, and Phase 1 (CPU and platform hardening) is well underway.
+
+## Where it stands
+
+**Done and working** (Phase 0): a custom UEFI bootloader, kernel ELF loaded from the ESP, higher-half mapping, physical frame allocator and kernel heap, IDT + xAPIC + APIC timer, ACPI/MADT parsing, framebuffer and serial drivers, PCI enumeration, a full xHCI USB driver with HID keyboard, a serial debug monitor, and a proper QEMU/GDB toolchain.
+
+**The long-term goal:** a POSIX-compatible-enough kernel to compile and run core Unix tools — coreutils, busybox, a shell — without crippling them.
 
 ## The AI experiment
 
