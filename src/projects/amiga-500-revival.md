@@ -1,6 +1,6 @@
 ---
 title: Amiga 500 Revival
-summary: Bringing a 1987 icon into the modern era — video output, storage, FPGA scan-doubling, and a Linux-native 68k development environment.
+summary: Bringing a 1987 icon into the modern era — good video, real storage, and tinkering that's slowly turning into a Verilog habit.
 status: Ongoing
 year: 2025–present
 permalink: /projects/amiga-500-revival/
@@ -13,35 +13,30 @@ The A500 gives you 15 kHz RGB (and a truly awful RF modulator), which most moder
 
 - **Composite (RCA)** — works everywhere, looks like a blurry mess. Fine for "does it boot."
 - **RGB → SCART** — pixel-perfect on a Euro CRT. The authentic answer, if you can find a CRT that isn't a museum piece.
-- **RGB2HDMI** — taps the *digital* video inside the machine (before it goes analog) and produces HDMI. Cleanest possible signal, and my current gold standard.
+- **RGB2HDMI** — taps the *digital* video inside the machine (before it goes analog) and produces HDMI. Cleanest possible signal, and what I actually run.
 - **Internal flicker-fixers** (Indivision ECS) and **external scalers** (OSSC, RetroTINK) — `RGB → SCART → scaler → HDMI`. Note: cheap "SCART to HDMI" adapters generally do *not* work, because they assume 31 kHz VGA input.
+
+One of my A500s now has an **RGB2HDMI** installed alongside a **2 MB memory upgrade**, which together make it a genuinely pleasant machine to actually use rather than just admire.
 
 ## Storage
 
 The stock A500 has no hard drive, no IDE, no SCSI — just floppies and expansion ports. So "modern storage" is really an adapter pretending to be something the Amiga understands:
 
-- **Gotek USB floppy emulator** — cheapest and easiest. Flashes with FlashFloppy, pretends to be a floppy drive, reads ADF images off a USB stick.
+- **Gotek USB floppy emulator** — cheap and easy. I've fitted one; it flashes with FlashFloppy and reads ADF images off a USB stick.
 - **IDE68k + CompactFlash** — a small board that taps the 68000 socket and adds real IDE. Cheap, fast, and a fun hacker mod.
 - **PiStorm** — replaces the CPU with a Raspberry Pi emulating 68k. Insanely fast, SD storage, RTG graphics. Philosophically cheating, genuinely great.
 
-## FPGA scan-doubler
+## The sidecar idea (early days)
 
-The interesting one. The goal: build a scan-doubler on an FPGA dev board — take the Amiga's 15 kHz RGB and double the line rate to 31 kHz so a VGA display can show it.
+The project I'm most excited about is still mostly on paper. The A500's sidecar expansion slot is a bus I can talk to myself — so the idea is to build an **SD-card interface for the sidecar port in Verilog**, as a way to actually learn FPGA design on a real problem instead of a tutorial.
 
-- **Nexys 3 (Spartan-6)** is the best "classic scan-doubler skeleton" — it has VGA output straight off the FPGA pins and enough logic/BRAM for a one- or two-line buffer. What it *lacks* is analog input, so it needs a small RGB ADC front-end (three ~8-bit ADCs sampling above ~28 MHz, with proper 75 Ω termination and sync handling).
-- **Snickerdoodle (Zynq)** is more powerful if you want fancier scaling, frame buffers, or motion-adaptive de-interlace — but the Amiga still doesn't speak HDMI, so a digitising stage remains necessary.
-- The key insight from the work: if you want RGB2HDMI-level quality, tap the **digital** video inside the machine rather than sampling analog RGB externally. Cleaner and simpler.
+It's very early — planning and reading, nothing built yet. But it ties together the two things I keep coming back to: retro hardware and getting my hands closer to the metal.
 
 ## 68k development environment
 
-My daily driver is CachyOS, so the toolchain lives there and the code runs in an emulator:
+I use the **Amiga C/C++ extension for VS Code** for playing with Amiga code. It's a full stack — toolchain, emulator, and debugging wired together — which makes it the path of least resistance for running something on a virtual Amiga in seconds.
 
-- **vasm** (68k assembler) and **vlink** (linker) for assembly
-- **vbcc** for C targeting 68k
-- **FS-UAE** + launcher as the emulator, with a shared folder to shuttle compiled executables across
-- Output is Amiga **HUNK** executables, run inside the emulator
-
-Roughly: assemble or compile on Linux, drop the binary in a shared folder, run it in FS-UAE. Legal note to self: you should own a real Amiga to use Kickstart ROMs.
+I'd honestly prefer to do it in Neovim. But the VS Code extension is just too handy for the full-stack workflow, so here we are.
 
 ## Why
 
