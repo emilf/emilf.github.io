@@ -19,7 +19,11 @@ I keep my hands off the implementation on purpose, even when I could do it faste
 
 ## A rough timeline
 
-The git history tells the story better than I can. It started in **June 2025** with a single commit saving the QEMU command line for booting UEFI firmware — the absolute ground floor. Everything since is in public in the repo.
+The git history tells the story better than I can — but the repo came later than the idea. I started exploring a Rust OS project back in **early 2023**: first x86 bootloader experiments, UEFI framebuffer tinkering, and working through the Rust Book and Rustlings. That was the on-ramp. The public repo didn't start until mid-2025, once it was time to actually build in earnest.
+
+**Before the repo (2023–2024)** — First Rust x86 bootloader experiments and UEFI GOP framebuffer work, alongside learning Rust properly. Early forays into memory layout and the GDT, and an early attempt at loading the kernel from the EFI System Partition.
+
+**In the repo:**
 
 - **June 2025** — First commit: just a QEMU invocation for a UEFI BIOS. The starting gun.
 - **August 2025** — A working "hello world" and the first data hand-off from bootloader to kernel.
