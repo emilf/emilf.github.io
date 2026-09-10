@@ -11,7 +11,9 @@ I keep my hands off the implementation on purpose, even when I could do it faste
 
 ## The shape of it
 
-The bootloader and kernel build as a **single binary**, so you can step through the entire bring-up path with no context switches and no ELF parsing in between. That choice says a lot about the project: it exists to be understood, not to be clever. The docs even split into *axioms* (binding truths about how the machine works) and *plans* (evolving roadmaps), so a smooth-sounding narrative can't quietly diverge from what the code does.
+The bootloader and kernel build as a **single binary**, which keeps the whole bring-up path steppable from start to finish — no context switches or ELF parsing between the two halves. It's a simple choice that suits a project built mainly to understand how all this fits together. I'm not trying to build something clever, just something I can follow.
+
+The docs are split into *axioms* (binding statements about how the machine actually works) and *plans* (evolving intentions), on the idea that a smooth-sounding narrative shouldn't quietly drift away from what the code really does.
 
 ## How it boots
 
