@@ -2,11 +2,5 @@
 layout: base.njk
 ---
 <article class="prose project-page">
-  <header class="project-header">
-    <h1>{{ title }}</h1>
-    {% if summary %}<p class="project-summary">{{ summary }}</p>{% endif %}
-    {% if status or year %}<p class="project-meta">{% if status %}<span class="tag">{{ status }}</span>{% endif %}{% if year %}<span class="tag">{{ year }}</span>{% endif %}</p>{% endif %}
-  </header>
-  {% include "partials/ai-disclaimer.njk" %}
   {{ content | safe }}
 </article>

@@ -17,6 +17,14 @@
     </div>
   </header>
   <main class="container">
+    {% if heading != false %}
+    <h1 class="page-title">{{ heading or title }}</h1>
+    {% endif %}
+    {% if subtitle %}<p class="page-subtitle">{{ subtitle }}</p>{% endif %}
+    {% if isPost and page.date %}<p class="post-date"><time datetime="{{ page.date | dateToISO }}">{{ page.date | readableDate }}</time>{% for t in tags %}{% if t != "posts" %} <span class="tag">{{ t }}</span>{% endif %}{% endfor %}</p>{% endif %}
+    {% if summary %}<p class="page-summary">{{ summary }}</p>{% endif %}
+    {% if status or year %}<p class="page-meta">{% if status %}<span class="tag">{{ status }}</span>{% endif %}{% if year %}<span class="tag">{{ year }}</span>{% endif %}</p>{% endif %}
+    {% include "partials/ai-disclaimer.njk" %}
     {{ content | safe }}
   </main>
   <footer class="site-footer">

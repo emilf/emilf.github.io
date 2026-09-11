@@ -48,6 +48,11 @@ a:hover { text-decoration: underline; }
 /* ---- Main ---- */
 main { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 
+.page-title { font-size: 2rem; line-height: 1.2; margin: 0 0 0.4rem; }
+.page-subtitle { font-size: 1.1rem; color: var(--accent); margin: 0 0 1rem; font-family: var(--font-mono); }
+.page-summary { color: var(--text-dim); font-size: 1.02rem; margin: 0 0 0.75rem; }
+.page-meta { margin: 0.75rem 0 0; }
+
 /* ---- Home ---- */
 .hero h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 0.4rem; }
 .hero .subtitle { font-size: 1.15rem; color: var(--accent); margin: 0 0 1.25rem; font-family: var(--font-mono); }
