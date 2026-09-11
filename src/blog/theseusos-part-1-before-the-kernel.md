@@ -1,104 +1,81 @@
 ---
 title: "TheseusOS, part 1: before the kernel"
-description: The first in a series on my hobby OS. This one is about the bootloader — what happens after you press the power button, before a single line of kernel code runs.
+description: The first in a series on my hobby OS. This one covers the bootloader, from the firmware's first breath to the moment control leaves it behind.
 date: 2026-09-11
 tags:
   - posts
   - theseusos
   - osdev
 ---
-This is the first post in a series about [TheseusOS](/projects/theseusos/), my hobby operating system for x86_64 written in Rust. I want to write the series assuming very little systems-level knowledge — partly because that's the kind of explanation I wish I'd had when I started, and partly because writing it down forces me to be honest about what I actually understand.
+This is the first post in a series about [TheseusOS](/projects/theseusos/), my hobby operating system for [x86-64](https://en.wikipedia.org/wiki/X86-64) written in Rust. I've been poking at OS development on and off since I was a teenager, and I'm writing the series assuming very little systems-level background. Partly because that's the explanation I would have wanted when I started, and partly because writing it down forces me to check that I actually understand it.
 
-This post covers the *bootloader*: the code that runs when you press the power button, before any of the kernel exists. The next post will pick up at the handoff — the moment control leaves the firmware behind and the kernel takes over.
+This post is about the **bootloader**: the code that runs after the machine wakes up and before any of the kernel exists. The next post picks up at the handoff, when the kernel takes over.
 
-## What actually happens when you press power?
+## The chain from the power button
 
-Here's the thing that surprised me when I first went down this path: your operating system is not the first thing that runs. Not even close.
+Your operating system isn't the first thing that runs. Between the power button and the [kernel](https://en.wikipedia.org/wiki/Kernel_(operating_system)) sits [firmware](https://en.wikipedia.org/wiki/Firmware) — software baked into the motherboard. On a modern PC that firmware implements [UEFI](https://en.wikipedia.org/wiki/UEFI), the Unified Extensible Firmware Interface. Its job is to bring the hardware up, find something bootable, and run it.
 
-Between the power button and your kernel, there's a whole layer of software called **firmware**. On modern PCs, that firmware implements something called **UEFI** — the Unified Extensible Firmware Interface. UEFI is the modern replacement for the old-school BIOS, and its job is to wake up the hardware, find something bootable, and then run it.
+For a normal machine, the thing it runs is a [bootloader](https://en.wikipedia.org/wiki/Bootloader) such as [GRUB](https://en.wikipedia.org/wiki/GNU_GRUB), which then loads Linux or Windows. For TheseusOS I skipped the middleman: the bootloader and the kernel are built as a single program that UEFI launches directly. I'll get to why later, because the reason is less noble than it sounds.
 
-For a normal computer, "something bootable" is a bootloader like GRUB, which then loads Linux or Windows. For TheseusOS, I skipped the middleman: our "bootloader" and our "kernel" are compiled into a **single program** that UEFI runs directly. That decision matters a lot, and I'll come back to it.
+UEFI gets a bad reputation, and some of it is deserved. But compared to the old way — a [512-byte boot sector](https://en.wikipedia.org/wiki/Boot_sector) dropped into 16-bit [real mode](https://en.wikipedia.org/wiki/Real_mode) with no memory management at all — it's a picnic. You start in a flat 64-bit environment, the firmware has already configured the machine, and it hands you structured ways to ask questions instead of making you probe hardware blind.
 
-One more piece of vocabulary before we go further:
+The one thing that genuinely hurts is display output. UEFI has no text mode, so you get no usable text on screen until you build your own font rendering and write characters to a [framebuffer](https://en.wikipedia.org/wiki/Framebuffer) yourself. Until that exists, your only window into the machine is a serial line.
 
-- **Kernel** — the core of an operating system. It manages memory, talks to hardware, and decides what runs when.
-- **Bootloader** — the program that prepares the machine so the kernel *can* run.
-- **Firmware / UEFI** — the software baked into the motherboard that runs before anything else.
+## Why you leave the firmware behind
 
-Now, the bootloader's job sounds simple: "set things up for the kernel." The catch is *what* it has to set up, and why it has to do some of it at a very specific moment.
+UEFI gives your boot program a set of helpers called **boot services**: read a file, allocate memory, enumerate devices, and so on. They are genuinely useful, and while they exist you'd be foolish not to lean on them.
 
-## The window that closes
+So why does every OS eventually call `ExitBootServices` and throw them away?
 
-UEFI gives your boot program a set of services — helper functions for things like "read a file," "allocate some memory," "give me a map of the machine's RAM." These are called **boot services**, and they're enormously convenient. They're also temporary.
+Because useful isn't the same as *yours*. While boot services are live, the firmware still owns the machine. It owns the [page tables](https://en.wikipedia.org/wiki/Page_table) that translate virtual addresses to physical ones, and you don't get to redesign them. It owns the [Global Descriptor Table](https://en.wikipedia.org/wiki/Global_Descriptor_Table) and the [interrupt](https://en.wikipedia.org/wiki/Interrupt) tables, and you can't install your own. It manages memory on its own terms and expects to be the only one doing so. If you tried to bring up your own [device drivers](https://en.wikipedia.org/wiki/Device_driver) and take over interrupt handling while the firmware was still working underneath you, the two of you would be fighting over the same hardware and the same data structures.
 
-At some point, the bootloader has to call a function called `ExitBootServices`. After that call, *every single one of those helpers is gone.* The firmware steps back, and if you didn't save something you needed beforehand, you simply don't get it. There's no going back to ask for it later.
+To run an operating system you need to own the address space, own the descriptor tables, own interrupt routing, and drive devices yourself. That only becomes possible once the firmware steps away. Exiting boot services is the act of taking the machine over: after the call, there are no more helpers, and everything the kernel needs has to already be in hand. You build your own page tables and GDT, install your own handlers, and go from there.
 
-So the bootloader exists to answer one question within a shrinking window: **what does the kernel need to know about this machine, and how do I gather all of it before the door closes?**
+A small set of **runtime services** survive the transition — reading the hardware clock, reading and writing UEFI variables — but they're limited, and getting at them after you've replaced the page tables is its own piece of work. That belongs to the next post.
 
-Almost the entire pre-handoff story is that question being answered.
+## Reading the machine before the window closes
 
-## Step one: a place to write things down
+Here's the shape of the whole pre-handoff job: the firmware's description of this machine is readable for a short while, and then it isn't. So the bootloader reads everything it might need and writes it down.
 
-Before you can gather anything, you need to be able to *talk to the user* — because if something goes wrong in the dark, you want to see why.
+In TheseusOS the bootloader begins at `efi_main`, the entry point UEFI calls. The first orders of business are an output path (so failures are visible) and a temporary allocator that forwards to UEFI, so Rust code can use strings and vectors before a real allocator exists.
 
-TheseusOS's bootloader starts in a function called `efi_main` (that's the entry point UEFI calls). The very first order of business is setting up a **logging path** — a way to print text — and a tiny memory allocator so the Rust code can use things like strings and vectors before the "real" allocator exists.
+Then it goes shopping, in order:
 
-Two details I like here, because they're honest about life in firmware-land:
+**Graphics.** Through UEFI's Graphics Output Protocol it asks for the screen resolution, the pixel format, and the address of the framebuffer — the block of memory that *is* the display. Write a colour to the right offset and a pixel appears. The kernel can't draw anything without that address.
 
-- The output driver can route text to different places (the QEMU debug port, a UEFI serial console, and so on). During early boot, you'd rather have *some* way to see output than a pretty one.
-- The allocator isn't the kernel's allocator. It's a temporary shim that forwards requests to UEFI's own memory functions. It'll be thrown away later. Grown-up allocation comes after boot services are gone.
+**The physical memory map.** The firmware hands over a list describing every region of the machine's [physical memory](https://en.wikipedia.org/wiki/Memory_map): which parts are usable RAM, which are reserved for hardware, which are off-limits. The kernel needs this to know where it's allowed to place anything, so the bootloader copies the whole list into memory it controls, where the kernel can read it once firmware is gone.
 
-The whole bootloader is, in a sense, a sequence of temporary things that exist to carry information across a one-way door.
+**ACPI tables.** [ACPI](https://en.wikipedia.org/wiki/ACPI) is the standard that describes the machine's layout in machine-readable form: how many CPUs, where the interrupt controllers live, and so on. The bootloader locates the root table and records its address.
 
-## Step two: gather the facts
+**System information.** Firmware vendor, a boot timestamp, CPU feature flags, and the UEFI system table — the top-level structure of the whole firmware world.
 
-With logging working, the bootloader goes on a shopping trip. In order, it collects:
+**Hardware inventory.** UEFI exposes devices as handles, and the bootloader walks them, sorting what it finds into a small inventory: this is a PCI device, this is USB, this is a serial port. It's the kernel's first look at the actual hardware.
 
-**1. Graphics.** It asks UEFI's Graphics Output Protocol (GOP) for the screen's resolution, pixel format, and — crucially — the address of the **framebuffer**: the block of memory that *is* the screen. Write a pixel's colour into the right spot in that block, and a pixel lights up. If the kernel wants to draw anything at all, it needs that address.
+Every one of these stages writes its results into the same place.
 
-**2. The memory map.** This is the big one. The firmware hands over a list describing every region of the machine's RAM: which parts are usable, which are reserved for hardware, which are off-limits for other reasons. Without this map, the kernel has no idea where it's allowed to put anything. We copy the whole thing into memory we control so the kernel can read it later without needing UEFI.
+## Packing the handoff
 
-**3. ACPI tables.** ACPI is the standard that describes the machine's hardware layout in a structured way — how many CPUs, where the interrupt controllers live, and so on. The bootloader finds the root table (the "RSDP") and records where it is, so the kernel can parse the details after firmware is gone.
+All of that lands in a single structure with a fixed layout, called the **handoff**. It's a plain C-style struct: a known sequence of fields at known offsets, so the kernel can read it with no parsing and no discovery of its own. The bootloader is the only thing that ever fills it in, and it does so exactly once.
 
-**4. System information.** Firmware vendor, a boot timestamp, CPU feature flags, and the system table itself — the top-level structure of the whole UEFI world. Some of this is genuinely useful; some of it is just good to have for debugging.
+Before the jump, the bootloader finishes the paperwork. It works out where the kernel image sits in memory — its physical base, its size, and the virtual address the kernel intends to run at once it has built its own page tables. It reserves a small temporary heap, deliberately placed so it doesn't overlap the kernel image, to carry the kernel through its first moments. Then it copies the finished handoff into `LOADER_DATA`, a memory type that survives what's coming.
 
-**5. Hardware inventory.** This is a fun one. UEFI exposes devices as "handles," and the bootloader walks them, classifying what it finds into a small inventory — this is a PCI device, this is USB, this is a serial port. It's the kernel's first glimpse of the physical machine.
+Then comes the point of no return. The bootloader calls `ExitBootServices`, marks the copied handoff as passed that boundary, and jumps into the kernel's entry point with a plain function call.
 
-Each of these collections writes its results into a single shared structure in memory. That structure, called the **handoff**, is the whole point of the exercise. Think of it as a suitcase that the bootloader packs and the kernel unpacks, with no chance to send anything later.
+That jump is the handoff, so this post stops there.
 
-## Step three: pack the suitcase properly
+## Why one binary
 
-Having gathered the facts, the bootloader does some final bookkeeping before the door closes.
+Most operating systems keep the bootloader and the kernel as two separate programs: a small loader reads a kernel image off disk, parses it, and jumps in. TheseusOS originally did exactly that.
 
-It works out where the kernel image itself lives in memory — the single binary that contains both the bootloader code and the kernel code. It computes the kernel's physical base address, its size, and the virtual address it wants to run at later. This matters because the kernel is going to build brand-new page tables (the maps that translate "virtual" addresses the code uses into "physical" addresses in the RAM chips), and it needs to know where it currently sits so it can map itself into its new home.
+I merged them because the AI helper that writes this project's code could not reliably get the kernel's [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) parsing right. Rather than keep fighting it, I removed the step: one binary, no image format to parse, no loader logic to get wrong.
 
-It also carves out a **temporary heap**: a scratch block of memory that the kernel will briefly use in its earliest moments, before it has set up memory management of its own. There's a subtle wrinkle here — this scratch block must not overlap the kernel image, so the bootloader asks UEFI for memory that specifically avoids that range. The comments in the code are refreshingly honest that this uses a conservative estimate rather than exact accounting; it's good enough to work, and documented as such.
+The cost is on the debugging side. [GDB](https://en.wikipedia.org/wiki/GNU_Debugger) is built around ELF symbol tables, and loading symbols for a unified UEFI binary is a headache I'd rather not have. A separate kernel ELF would make source-level debugging far less painful, which is a good enough reason to split the two apart again later. For now, the single binary stays.
 
-Then it finalises the handoff: making sure the structure is complete and self-describing.
+## What the bootloader really is
 
-## The last thing before the jump
+Strip away the protocol calls and the memory juggling and the bootloader comes down to one job: the machine can only describe itself for a little while, so read all of it, record it, and get out before the door shuts.
 
-At this point the suitcase is packed. Everything the kernel will ever know about this machine is sitting in one structure in memory.
-
-The bootloader now does the serious bit. It copies that structure into a special kind of memory (`LOADER_DATA`) that's guaranteed to survive what comes next, and then it calls `ExitBootServices`. Firmware steps back. Control transfers — via a plain function call, in the same binary — into the kernel's entry point.
-
-And that's where this post stops, because that transfer *is* the handoff, and the handoff is the next post.
-
-## Why a single binary, though?
-
-I promised I'd come back to this. The conventional design is two programs: a bootloader that loads a *separate* kernel file from disk, parses it, and jumps into it. That's how most operating systems do it, and it's the right choice for a real OS.
-
-TheseusOS deliberately isn't that. The bootloader and kernel are one program. There are real trade-offs here — you lose the clean separation, and the "kernel image accounting" gets a bit hand-wavy, as we saw above. But you gain something I care about a lot for a learning project: **you can step through the entire journey from firmware to kernel in one debugger session, with no mystery gap in the middle.** No image-format parsing between the two halves, no "how did we get here" when a debugger stops.
-
-It's a simple choice that suits a project built mainly to understand how all this fits together. I'm not trying to build something clever, just something I can follow.
-
-## What I took away from writing this
-
-Reducing the bootloader to its essentials, it's really just this: *the machine's self-description is readable only for a little while, so read all of it, write it down, and leave before the door shuts.*
-
-Everything else — the protocol calls, the memory juggling, the inventory — is in service of that one idea.
-
-Next time: what happens on the other side. The kernel wakes up holding a pointer to a structure it's never seen before, in a machine that has just stopped helping it, and has to decide what to do first.
+Next time: the other side. The kernel wakes up holding a pointer to a structure it has never seen, in a machine that has just stopped helping it, and has to decide what to do first.
 
 ---
 
