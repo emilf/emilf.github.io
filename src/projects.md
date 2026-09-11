@@ -8,6 +8,7 @@ eleventyNavigation:
 permalink: /projects/
 ---
 <h1>Projects</h1>
+{% include "partials/ai-disclaimer.njk" %}
 <p class="project-intro">Things I build and tinker with. Some are long-running; some are weekend rabbit holes that got out of hand.</p>
 
 <div class="projects">

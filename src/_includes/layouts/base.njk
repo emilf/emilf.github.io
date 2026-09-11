@@ -6,6 +6,7 @@
   <title>{% if title %}{{ title }} · {{ site.title }}{% else %}{{ site.title }} — {{ site.description }}{% endif %}</title>
   <meta name="description" content="{% if description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="/feed.xml">
   <link rel="stylesheet" href="/assets/css/style.css">
   <meta name="generator" content="Eleventy">
 </head>
@@ -20,7 +21,7 @@
   </main>
   <footer class="site-footer">
     <div class="container">
-      <p>© {{ site.author }} — built with <a href="https://www.11ty.dev/">Eleventy</a>. Text and site generated with help from an LLM.</p>
+      <p>© {{ site.author }} — built with <a href="https://www.11ty.dev/">Eleventy</a>. <a href="/feed.xml">RSS feed</a>.</p>
     </div>
   </footer>
 </body>

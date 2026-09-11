@@ -7,5 +7,6 @@ layout: base.njk
     {% if summary %}<p class="project-summary">{{ summary }}</p>{% endif %}
     {% if status or year %}<p class="project-meta">{% if status %}<span class="tag">{{ status }}</span>{% endif %}{% if year %}<span class="tag">{{ year }}</span>{% endif %}</p>{% endif %}
   </header>
+  {% include "partials/ai-disclaimer.njk" %}
   {{ content | safe }}
 </article>

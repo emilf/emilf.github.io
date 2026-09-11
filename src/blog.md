@@ -8,6 +8,7 @@ eleventyNavigation:
 permalink: /blog/
 ---
 <h1>Blog</h1>
+{% include "partials/ai-disclaimer.njk" %}
 
 {% if collections.posts.length > 0 %}
 <ul class="post-list">

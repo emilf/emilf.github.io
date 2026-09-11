@@ -7,5 +7,6 @@ layout: base.njk
     <p class="post-date">{{ page.date | readableDate }}</p>
     {% if tags %}<p class="post-tags">{% for t in tags %}{% if t != "posts" %}<span class="tag">{{ t }}</span>{% endif %}{% endfor %}</p>{% endif %}
   </header>
+  {% include "partials/ai-disclaimer.njk" %}
   {{ content | safe }}
 </article>

@@ -1,8 +1,10 @@
 // emilf.dev — Eleventy configuration
 import eleventyNavigationPlugin from "@11ty/eleventy-navigation";
+import rssPlugin from "@11ty/eleventy-plugin-rss";
 
 export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
+  eleventyConfig.addPlugin(rssPlugin);
 
   // Copy static assets straight through
   eleventyConfig.addPassthroughCopy("src/assets");
