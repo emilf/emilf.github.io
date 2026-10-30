@@ -15,7 +15,9 @@ The kernel starts with no memory allocator and no page tables of its own. No int
 
 If the next thirty steps go wrong, the only evidence will be whatever got printed before the failure. So the very first line of `kernel_entry` initialises logging.
 
-Everything after that point is allowed to log; nothing before it may try. Logging can't use the [heap](https://en.wikipedia.org/wiki/Memory_management_(operating_systems)) here, because there isn't one yet. Messages go out over the serial port in fixed-size buffers, which is why the kernel log is a dribble of short sequential lines instead of something readable. It's ugly. It also works on a machine that is still figuring out how to be a machine.
+Everything after that point is allowed to log; nothing before it may try. Logging can't use the [heap](https://en.wikipedia.org/wiki/Memory_management_(operating_systems)) here, because there isn't one yet.
+
+By default the messages go to the QEMU debug port, which is a single `out` instruction per byte — no buffer to fill, no status register to poll, nothing to wait on. That's not portable: it does nothing on real hardware, which is why it's the default here. The config can route output to the serial port instead, and errors and warnings already go to both. It's ugly either way. It also works on a machine that is still figuring out how to be a machine.
 
 ## Validating the handoff
 
