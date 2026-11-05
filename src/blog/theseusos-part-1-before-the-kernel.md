@@ -41,7 +41,7 @@ In TheseusOS the bootloader begins at `efi_main`, the entry point UEFI calls. Th
 
 Then it goes shopping.
 
-**Graphics.** Through UEFI's Graphics Output Protocol it asks for the screen resolution, the pixel format, and the address of the framebuffer — the block of memory that *is* the display. Write a colour to the right offset and a pixel appears. Without that address the kernel can't draw anything.
+**Graphics.** Through UEFI's [Graphics Output Protocol](https://uefi.org/specs/UEFI/2.10/12_Protocols_Console_Support.html#graphics-output-protocol) it asks for the screen resolution, the pixel format, and the address of the framebuffer — the block of memory that *is* the display. Write a colour to the right offset and a pixel appears. Without that address the kernel can't draw anything.
 
 **The physical memory map.** The firmware hands over a list describing every region of the machine's [physical memory](https://en.wikipedia.org/wiki/Memory_map): which parts are usable RAM, which are reserved for hardware, which are off-limits. The kernel needs this to know where it may place anything, so the bootloader copies the whole list into memory it controls, where the kernel can still read it once firmware is gone.
 

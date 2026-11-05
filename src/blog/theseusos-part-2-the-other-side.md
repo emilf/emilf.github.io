@@ -7,7 +7,7 @@ tags:
   - theseusos
   - osdev
 ---
-[Last time](/blog/theseusos-part-1-before-the-kernel/) we packed everything the kernel would need into a single structure, called [`ExitBootServices`](https://en.wikipedia.org/wiki/UEFI), and jumped. This picks up on the other side.
+[Last time](/blog/theseusos-part-1-before-the-kernel/) we packed everything the kernel would need into a single structure, called [`ExitBootServices`](https://uefi.org/specs/UEFI/2.10/06_Services.html#exit-boot-services), and jumped. This picks up on the other side.
 
 The kernel starts with no memory allocator and no page tables of its own. No interrupt handlers either, and no reliable idea of where it sits in memory. What it has is one argument: the physical address of the handoff structure. Firmware is not coming back.
 
@@ -49,7 +49,7 @@ Then a first [IDT](https://en.wikipedia.org/wiki/Interrupt_descriptor_table), in
 
 The kernel is running from an address firmware chose, with firmware's translation in place, and needs to end up running from an address it chose, with its own tables. Getting from one to the other is the nasty part of boot.
 
-It allocates a fresh top-level table — a PML4 — and fills it with several mappings, each solving a different problem.
+It allocates a fresh top-level table, a [PML4](https://wiki.osdev.org/Page_Tables#Page_Table_Entry_Format), and fills it with several mappings, each solving a different problem.
 
 An identity map of low physical memory, where virtual address equals physical. This keeps the currently executing code valid while everything else is being arranged, since that code still addresses itself at its old physical location. It's a bridge, not a home.
 
