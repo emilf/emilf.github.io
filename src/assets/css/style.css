@@ -151,6 +151,47 @@ main { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
   line-height: 1.55;
 }
 
+/* ---- Lightbox ---- */
+.prose img.zoomable { cursor: zoom-in; }
+.prose img.zoomable:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(5, 7, 10, 0.94);
+  cursor: zoom-out;
+}
+.lightbox[hidden] { display: none; }
+.lightbox .lb-img {
+  max-width: min(96vw, 1600px);
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+.lightbox .lb-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 2.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.lightbox .lb-close:hover { color: var(--text); }
+body.lb-open { overflow: hidden; }
+
 /* ---- Misc ---- */
 .btn {
   display: inline-block;
