@@ -26,6 +26,8 @@ The interface is a block of [memory-mapped](https://en.wikipedia.org/wiki/Memory
 
 The driver maps that aperture once at probe time and keeps the pointer for the controller's lifetime.
 
+![The xHCI MMIO register layout: capability, operational, runtime and doorbell regions](/assets/img/xhci-registers.svg)
+
 ## Rings, and why everything is a ring
 
 xHCI moves work through three kinds of [transfer request block](https://wiki.osdev.org/EXtensible_Host_Controller_Interface#TRBs) (TRB) ring.
@@ -35,6 +37,8 @@ The **command ring** carries instructions to the controller itself: enable a slo
 All three are [DMA](https://en.wikipedia.org/wiki/Direct_memory_access) structures. The controller reads and writes them directly, so they must be physically contiguous, correctly aligned, and stay allocated for as long as the controller might touch them. [`rings.rs`](https://github.com/emilf/TheseusOS/blob/main/kernel/src/drivers/usb/xhci/rings.rs) wraps each kind in a struct holding the DMA buffer, a producer or consumer index, and a cycle bit.
 
 The cycle bit is the part that catches people out. Every TRB carries a bit that flips when the ring wraps. A producer sets it to match the current cycle to say "this entry is valid"; a consumer compares against its own copy to decide whether an entry is new or stale. Get the bookkeeping wrong and the controller either processes stale entries or stops on one that never gets consumed, usually with no error reported anywhere.
+
+![A TRB ring across two passes, showing how the cycle bit separates new entries from stale ones](/assets/img/xhci-ring-cycle.svg)
 
 The event ring is the exception to the wrapping rule: it's a circular array of TRB *segments* rather than a single ring, with an entry table describing where each segment starts. The controller posts events into it and the driver advances the [Event Ring Dequeue Pointer](https://wiki.osdev.org/EXtensible_Host_Controller_Interface#Event_Ring) (ERDP) past each one as it consumes it.
 
@@ -69,6 +73,8 @@ Each port has a `PORTSC` register reporting connection status, link state, speed
 **Set Protocol** tells a [HID](https://en.wikipedia.org/wiki/USB_human_interface_device_class) interface to use the boot protocol, which guarantees an 8-byte report format instead of whatever the vendor designed.
 
 **Configure Endpoint** sets up the interrupt endpoint: its type, the max packet size and interval from the descriptor, and the address of its transfer ring.
+
+![The enumeration sequence: controller bring-up, then slot allocation through endpoint configuration](/assets/img/xhci-enumeration.svg)
 
 The endpoint ID is derived from the endpoint address in the descriptor — address `0x81` is endpoint 1 in, and the driver maps that onto the controller's numbering. Getting this mapping wrong was one of the debugging detours mentioned below.
 

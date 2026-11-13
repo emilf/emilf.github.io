@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 520" role="img" aria-labelledby="t d">
+  <title id="t">xHCI device enumeration sequence</title>
+  <desc id="d">Nine numbered steps from controller reset through port reset, slot allocation, addressing, descriptor reads, configuration and endpoint setup, ending when reports start arriving.</desc>
+  <style>
+    .step { fill: #12151a; stroke: #3f5f8f; stroke-width: 1.4; }
+    .cmd { stroke: #6ea8fe; }
+    .dat { stroke: #8b7a4a; }
+    .ok { stroke: #5c7a5c; }
+    .t { fill: #d7dee6; font: 600 13px ui-monospace, monospace; }
+    .ts { fill: #8b96a3; font: 11px ui-monospace, monospace; }
+    .num { fill: #3f5f8f; font: 700 12px ui-monospace, monospace; }
+    .tag { fill: #8b96a3; font: 10px ui-monospace, monospace; }
+    .cap { fill: #8b96a3; font: 10px ui-monospace, monospace; }
+    .flow { stroke: #2a3138; stroke-width: 1.5; fill: none; }
+  </style>
+
+  <!-- legend, top right, spaced out -->
+  <rect class="step cmd" x="590" y="16" width="13" height="13" rx="2"/>
+  <text class="tag" x="611" y="27">command ring</text>
+  <rect class="step dat" x="722" y="16" width="13" height="13" rx="2"/>
+  <text class="tag" x="743" y="27">data transfer</text>
+  <rect class="step ok" x="856" y="16" width="13" height="13" rx="2"/>
+  <text class="tag" x="877" y="27">ready</text>
+
+  <!-- column 1 -->
+  <text class="num" x="30" y="62">1</text>
+  <rect class="step" x="50" y="48" width="250" height="46" rx="4"/>
+  <text class="t" x="66" y="68">Reset</text>
+  <text class="ts" x="66" y="84">clear HCHalted, set HCRST</text>
+
+  <text class="num" x="30" y="128">2</text>
+  <rect class="step" x="50" y="114" width="250" height="46" rx="4"/>
+  <text class="t" x="66" y="134">Stage memory</text>
+  <text class="ts" x="66" y="150">DCBAA, rings, scratchpads</text>
+
+  <text class="num" x="30" y="194">3</text>
+  <rect class="step" x="50" y="180" width="250" height="46" rx="4"/>
+  <text class="t" x="66" y="200">Start controller</text>
+  <text class="ts" x="66" y="216">CONFIG = max slots, set RUN</text>
+
+  <text class="num" x="30" y="260">4</text>
+  <rect class="step" x="50" y="246" width="250" height="46" rx="4"/>
+  <text class="t" x="66" y="266">Port reset</text>
+  <text class="ts" x="66" y="282">PORTSC: CCS set, PR cycle</text>
+
+  <!-- column 2 -->
+  <text class="num" x="370" y="62">5</text>
+  <rect class="step cmd" x="390" y="48" width="250" height="46" rx="4"/>
+  <text class="t" x="406" y="68">Enable Slot</text>
+  <text class="ts" x="406" y="84">completion carries a slot ID</text>
+
+  <text class="num" x="370" y="128">6</text>
+  <rect class="step cmd" x="390" y="114" width="250" height="46" rx="4"/>
+  <text class="t" x="406" y="134">Address Device</text>
+  <text class="ts" x="406" y="150">input context describing EP0</text>
+
+  <text class="num" x="370" y="194">7</text>
+  <rect class="step dat" x="390" y="180" width="250" height="46" rx="4"/>
+  <text class="t" x="406" y="200">Get Descriptor ×2</text>
+  <text class="ts" x="406" y="216">device (18 B), then configuration</text>
+
+  <text class="num" x="370" y="260">8</text>
+  <rect class="step cmd" x="390" y="246" width="250" height="46" rx="4"/>
+  <text class="t" x="406" y="266">Set Configuration</text>
+  <text class="ts" x="406" y="282">select a configuration value</text>
+
+  <!-- column 3 -->
+  <text class="num" x="710" y="62">9</text>
+  <rect class="step cmd" x="730" y="48" width="180" height="46" rx="4"/>
+  <text class="t" x="746" y="68">Set Protocol</text>
+  <text class="ts" x="746" y="84">HID → boot protocol</text>
+
+  <text class="num" x="710" y="128">10</text>
+  <rect class="step cmd" x="730" y="114" width="180" height="46" rx="4"/>
+  <text class="t" x="746" y="134">Configure Endpoint</text>
+  <text class="ts" x="746" y="150">interrupt IN, ring, interval</text>
+
+  <text class="num" x="710" y="194">11</text>
+  <rect class="step ok" x="730" y="180" width="180" height="46" rx="4"/>
+  <text class="t" x="746" y="200">Queue a report buffer</text>
+  <text class="ts" x="746" y="216">ring DB[slot]</text>
+
+  <text class="num" x="710" y="260">12</text>
+  <rect class="step ok" x="730" y="246" width="180" height="46" rx="4"/>
+  <text class="t" x="746" y="266">Reports arrive</text>
+  <text class="ts" x="746" y="282">8 bytes per poll</text>
+
+  <!-- flow: down col1, across to col2, up col2, across to col3, down col3 -->
+  <path class="flow" d="M175 294 L175 322 Q175 332 165 332 L60 332 Q50 332 50 322 L50 300" stroke-dasharray="0"/>
+  <path class="flow" d="M300 271 L340 271 L340 71 L384 71" marker-end="url(#f)"/>
+  <path class="flow" d="M640 71 L660 71 L660 292 L724 292" marker-end="url(#f)"/>
+  <path class="flow" d="M820 246 L820 232" marker-end="url(#f)"/>
+
+  <text class="tag" x="306" y="330">controller initialised</text>
+  <text class="tag" x="306" y="346">before any device work</text>
+
+  <!-- annotations -->
+  <text class="tag" x="50" y="368">Steps 1–4 bring the controller up. Nothing is attached yet;</text>
+  <text class="tag" x="50" y="384">the port reset in step 4 is what makes a device real.</text>
+
+  <text class="tag" x="50" y="416">Steps 5–8 are commands and control transfers on EP0. Each one is</text>
+  <text class="tag" x="50" y="432">a TRB on the command ring or a transfer ring, followed by a</text>
+  <text class="tag" x="50" y="448">doorbell write. Completions come back on the event ring; none of</text>
+  <text class="tag" x="50" y="464">it blocks waiting.</text>
+
+  <text class="cap" x="50" y="496">The endpoint ID in step 10 comes from the endpoint address in the configuration descriptor.</text>
+
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2a3138"/>
+    </marker>
+  </defs>
+</svg>
